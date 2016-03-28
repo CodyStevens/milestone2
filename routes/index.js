@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Today I Learned' });
 });
@@ -26,7 +25,7 @@ router.post('/login', function(req, res, next) {
       sha1sum.update(req.body.password);
       var hashed_input = sha1sum.digest('hex');
 
-      if(hashed_input === data[0].password) //DONT Do this is other projects!!!
+      if(hashed_input === data[0].password)
       {
         res.cookie('username', data[0].name);
         res.redirect('/til/');

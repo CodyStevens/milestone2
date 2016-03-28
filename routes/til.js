@@ -1,14 +1,22 @@
 var express = require('express');
 var router = express.Router();
 
-var til = [
-  {title:"Entry 1", body: "The site is up and running!", created_at: "3/5/2016"},
-  {title:"Entry 2", body: "Milestone 2 requirements all met!", created_at: "3/5/2016"}
-];
+var til = [];
 
 /* READ all: GET til listing. */
 router.get('/', function(req, res, next) {
-  res.render('til/index', { title: 'Today I Learned', til: til });
+  req.db.driver.execQuery(
+    "SELECT * FROM til;",
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.render('til/index', { title: 'Today I Learned', til: data });
+    }
+  );
+
 });
 
 /* CREATE entry form: GET /til/new */
@@ -18,41 +26,93 @@ router.get('/new', function(req, res, next) {
 
 /*CREATE entry: POST /til/ */
 router.post('/', function(req, res, next) {
-  til.push(req.body);
-  res.render('til/index', { title: 'Today I Learned', til: til });
+  req.db.driver.execQuery(
+    "INSERT INTO til (title,body) VALUES (?,?);",
+    [req.body.title, req.body.body],
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.redirect(303, '/til/index');
+    }
+  );
 });
 
 /* UPDATE entry form: GET /til/1/edit */
 router.get('/:id/edit', function(req, res, next) {
-  res.render('til/update',
-  {
-    title: 'Update an entry',
-    id: req.params.id,
-    entry: til[req.params.id]
-  });
+
+  req.db.driver.execQuery(
+    'SELECT * FROM til WHERE id=?;',
+    [parseInt(req.params.id)],
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.render('til/update',
+      {
+        title: 'Update an entry',
+        entry: data[0]
+      });
+    }
+  );
+
 });
 
 /* UPDATE entry: POST /til/1 */
 router.post('/:id', function(req, res, next) {
-  til[req.params.id] = req.body;
-  res.render('til/index',
-  {
-    title: 'Update an entry',
-    til: til
-  });
+  var id=parseInt(req.params.id);
+
+  req.db.driver.execQuery(
+    "UPDATE til SET title=? ,body=? WHERE id=?;",
+    [req.body.title, req.body.body, parseInt(req.params.id)],
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.redirect(303, '/til/' + id);
+    }
+  );
+
 });
 
 /* DELETE entry: GET /til/1/delete  */
 router.get('/:id/delete', function(req, res, next) {
-  var id = req.params.id
-  til = til.slice(0,id).concat(til.slice(id+1, til.length));
-  res.render('til/index', { title: 'Today I Learned', til: til });
+  req.db.driver.execQuery(
+    'DElETE FROM til WHERE id=?;',
+    [parseInt(req.params.id)],
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.redirect(303, '/til/');
+    }
+  );
 });
 
 /* THIS NEEDS TO BE LAST or /new goes here rather than where it should */
 /* READ one entry: GET /til/0 */
 router.get('/:id', function(req, res, next) {
-  res.render('til/entry', {title: "a entry", entry: til[req.params.id]});
+  req.db.driver.execQuery(
+    'SELECT * FROM til WHERE id=?;',
+    [parseInt(req.params.id)],
+    function(err, data){
+      if(err)
+      {
+        console.log(err);
+      }
+
+      res.render('til/entry', {title: "a entry", entry: data[0]});
+    }
+  );
+
 });
 
 module.exports = router;
