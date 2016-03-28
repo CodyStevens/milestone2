@@ -3,9 +3,9 @@
 <ul>
 <% for(var i=0; i<til.length; i++) { %>
  <li>
-   <a href='/til/<%= i %>' ><%= til[i].title %></a>
-   <a href='/til/<%= i %>/edit'>Edit</a>
-   <a href='/til/<%= i %>/delete'>Delete</a>
+   <a href='/til/<%= til[i].id %>' ><%= til[i].title %></a>
+   <a href='/til/<%= til[i].id %>/edit'>Edit</a>
+   <a href='/til/<%= til[i].id %>/delete'>Delete</a>
  </li>
 <% } %>
 </ul>
