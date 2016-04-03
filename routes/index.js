@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var crypto = require('crypto');
 
+/* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Today I Learned' });
 });
@@ -36,7 +37,11 @@ router.post('/login', function(req, res, next) {
       }
     }
   );
+});
 
+router.get('/logout', function(req, res){
+  res.clearCookie('username');
+  res.redirect("/");
 });
 
 module.exports = router;
